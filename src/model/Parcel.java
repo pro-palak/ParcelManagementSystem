@@ -9,5 +9,6 @@ public class Parcel {
 	        this.parcelID = parcelID;
 	        this.weight = weight;
 	        this.noOfDays = noOfDays;
+	        
 	    }
 }
