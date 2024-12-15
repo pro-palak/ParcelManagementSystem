@@ -13,14 +13,14 @@ import util.CSVReader;
 import util.StatusP;
 import view.MainWindow;
 
-public class ParcelController {
+public class Manager {
     private CustomersQueue queue;
     private ParcelMap parcelMap;
     private Staff staff;
     private MainWindow mainWindow;  // Changed from ParcelView to MainWindow
     private Customer currentCustomer;
     
-    public ParcelController() {
+    public Manager() {
         this.parcelMap = new ParcelMap();
         this.staff = new Staff(parcelMap);
         this.queue = new CustomersQueue();

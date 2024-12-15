@@ -1,10 +1,10 @@
 package main;
 
-import controller.ParcelController;
+import controller.Manager;
 
 public class mainApp {
     public static void main(String[] args) {
-        ParcelController controller = new ParcelController();
+    	Manager controller = new Manager();
         controller.loadParcelsFromCSV("Parcels.csv");
         controller.loadCustomerData("Custs.csv");
         

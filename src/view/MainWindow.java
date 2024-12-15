@@ -5,7 +5,7 @@ import java.awt.*;
 import model.ParcelMap;
 import util.Log;
 import model.CustomersQueue;
-import controller.ParcelController;
+import controller.Manager;
 import model.Parcel;
 import model.Customer;
 import java.util.Map;
@@ -16,9 +16,9 @@ public class MainWindow extends JFrame {
     private JPanel queuePanel;
     private JPanel currentParcelPanel;
     private JTextArea logArea;
-    private ParcelController controller;
+    private Manager controller;
 
-    public MainWindow(ParcelController controller) {
+    public MainWindow(Manager controller) {
         this.controller = controller;
         setTitle("Parcel Management System");
         setSize(1000, 700);  // Increased size for better visibility

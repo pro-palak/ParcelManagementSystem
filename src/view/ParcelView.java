@@ -1,14 +1,14 @@
 package view;
 
-import controller.ParcelController;
+import controller.Manager;
 
 import java.util.Scanner;
 
 public class ParcelView {
-    private ParcelController controller;
+    private Manager controller;
     private Scanner scanner;
 
-    public ParcelView(ParcelController controller) {
+    public ParcelView(Manager controller) {
         this.controller = controller;
         this.scanner = new Scanner(System.in);
     }
