@@ -17,14 +17,14 @@ public class Manager {
     private CustomersQueue queue;
     private ParcelMap parcelMap;
     private Staff staff;
-    private MainWindow mainWindow;  // Changed from ParcelView to MainWindow
+    private MainWindow mainWindow;
     private Customer currentCustomer;
     
     public Manager() {
         this.parcelMap = new ParcelMap();
         this.staff = new Staff(parcelMap);
         this.queue = new CustomersQueue();
-        this.mainWindow = new MainWindow(this);  // Create MainWindow with reference to controller
+        this.mainWindow = new MainWindow(this);
     }
 
     public void addParcel(String parcelID, double weight, int noOfDays, String dimensions) {
@@ -33,11 +33,10 @@ public class Manager {
         parcelMap.pAdd(parcel);
         System.out.println("Parcel added successfully: " + parcel);
         if (mainWindow != null) {
-            mainWindow.updateDisplay();  // Update the display through MainWindow
+            mainWindow.updateDisplay();
         }
     }
 
-    // Overloaded method for backward compatibility
     public void addParcel(String parcelID, double weight, int noOfDays) {
         addParcel(parcelID, weight, noOfDays, "Not specified");
     }
@@ -100,7 +99,7 @@ public class Manager {
     	String fullPath = System.getProperty("user.dir") + "/src/Data/Custs.csv";
         try (BufferedReader br = new BufferedReader(new FileReader(fullPath))) {
             String line;
-            br.readLine(); // Skip header line
+            br.readLine();
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data.length >= 2) {
@@ -121,10 +120,6 @@ public class Manager {
         return mainWindow;
     }
 
-	public void listCustomers() {
-		// TODO Auto-generated method stub
-		
-	}
 	public Customer getCurrentCustomer() {
         return currentCustomer;
     }

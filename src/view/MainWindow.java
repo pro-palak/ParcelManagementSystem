@@ -10,6 +10,7 @@ import model.Parcel;
 import model.Customer;
 import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class MainWindow extends JFrame {
     private JPanel parcelPanel;
@@ -21,44 +22,37 @@ public class MainWindow extends JFrame {
     public MainWindow(Manager controller) {
         this.controller = controller;
         setTitle("Parcel Management System");
-        setSize(1000, 700);  // Increased size for better visibility
+        setSize(1000, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        // Use BorderLayout explicitly
         setLayout(new BorderLayout());
 
-        // Initialize panels first
-        parcelPanel = new JPanel(new GridLayout(0, 1));
-        queuePanel = new JPanel(new GridLayout(0, 1));
-        currentParcelPanel = new JPanel(new BorderLayout());
+        parcelPanel = new JPanel();
+        parcelPanel.setLayout(new BoxLayout(parcelPanel, BoxLayout.Y_AXIS));
+        
+        queuePanel = new JPanel();
+        queuePanel.setLayout(new BoxLayout(queuePanel, BoxLayout.Y_AXIS));
+        
+        currentParcelPanel = new JPanel();
+        currentParcelPanel.setLayout(new BorderLayout());
+        currentParcelPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
         logArea = new JTextArea(10, 30);
         logArea.setEditable(false);
 
-        // Create scroll panes for panels
         JScrollPane parcelScrollPane = new JScrollPane(parcelPanel);
-        parcelScrollPane.setBorder(BorderFactory.createTitledBorder("Parcels"));
+        parcelScrollPane.setBorder(BorderFactory.createTitledBorder("Pending Parcels"));
+        parcelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         
         JScrollPane queueScrollPane = new JScrollPane(queuePanel);
         queueScrollPane.setBorder(BorderFactory.createTitledBorder("Customer Queue"));
+        queueScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         
         JScrollPane logScrollPane = new JScrollPane(logArea);
         logScrollPane.setBorder(BorderFactory.createTitledBorder("Log"));
 
-        // Create control panel
-        JPanel controlPanel = new JPanel();
-        JButton processButton = new JButton("Process Next Customer");
-        JButton addCustomerButton = new JButton("Add Customer");
-        JButton addParcelButton = new JButton("Add Parcel");
-        
-        processButton.addActionListener(e -> processNextCustomer());
-        addCustomerButton.addActionListener(e -> showAddCustomerDialog());
-        addParcelButton.addActionListener(e -> showAddParcelDialog());
-        
-        controlPanel.add(processButton);
-        controlPanel.add(addCustomerButton);
-        controlPanel.add(addParcelButton);
+        JPanel controlPanel = createControlPanel();
 
-        // Set up main layout
         JSplitPane centerSplitPane = new JSplitPane(
             JSplitPane.HORIZONTAL_SPLIT, 
             parcelScrollPane, 
@@ -66,18 +60,15 @@ public class MainWindow extends JFrame {
         );
         centerSplitPane.setDividerLocation(500);
 
-        // Add components to frame
         add(currentParcelPanel, BorderLayout.NORTH);
         add(centerSplitPane, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.SOUTH);
         add(logScrollPane, BorderLayout.EAST);
 
-        // Final setup
-        pack();  // Adjusts window to preferred sizes
-        setLocationRelativeTo(null);  // Center on screen
+        pack();
+        setLocationRelativeTo(null);
     }
     
- // Add to MainWindow
     private boolean validateParcelInput(String id, String weight, String days) {
         if (id.trim().isEmpty()) {
             System.out.println("Parcel ID cannot be empty");
@@ -98,22 +89,19 @@ public class MainWindow extends JFrame {
     }
 
     private void createPanels() {
-        // Parcels Panel with scroll
         parcelPanel = new JPanel();
         parcelPanel.setLayout(new BoxLayout(parcelPanel, BoxLayout.Y_AXIS));
         JScrollPane parcelScrollPane = new JScrollPane(parcelPanel);
         parcelScrollPane.setBorder(BorderFactory.createTitledBorder("Parcels"));
         parcelScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        // Queue Panel with scroll
         queuePanel = new JPanel();
         queuePanel.setLayout(new BoxLayout(queuePanel, BoxLayout.Y_AXIS));
         JScrollPane queueScrollPane = new JScrollPane(queuePanel);
         queueScrollPane.setBorder(BorderFactory.createTitledBorder("Customer Queue"));
         queueScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        // In your constructor or layout setup, use the scroll panes instead of direct panels
-        // For example:
+
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
             parcelScrollPane, queueScrollPane);
     }
@@ -207,64 +195,77 @@ public class MainWindow extends JFrame {
         SwingUtilities.invokeLater(() -> {
             if (controller == null) return;
             
-            // Clear existing panels
             parcelPanel.removeAll();
             queuePanel.removeAll();
             currentParcelPanel.removeAll();
 
-            // Parcels display - show only unprocessed parcels
             Map<String, Parcel> parcels = controller.getParcelMap().getParcels();
             parcels.values().stream()
-                .filter(parcel -> !parcel.getStatus().equals("Processed"))
-                .limit(10)
+                .filter(parcel -> parcel.getStatus() != util.StatusP.COLLECTED)
                 .forEach(parcel -> {
-                    JPanel parcelInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                    parcelInfoPanel.add(new JLabel(String.format(
-                        "ID: %s, Weight: %.2f, Days: %d, Status: %s",
-                        parcel.getParcelID(), parcel.getWeight(), 
-                        parcel.getNoOfDays(), parcel.getStatus()
-                    )));
+                    JPanel parcelInfoPanel = new JPanel();
+                    parcelInfoPanel.setLayout(new BoxLayout(parcelInfoPanel, BoxLayout.Y_AXIS));
+                    parcelInfoPanel.setBorder(BorderFactory.createEtchedBorder());
+                    parcelInfoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+                    
+                    parcelInfoPanel.add(new JLabel(String.format("ID: %s", parcel.getParcelID())));
+                    parcelInfoPanel.add(new JLabel(String.format("Weight: %.2f kg", parcel.getWeight())));
+                    parcelInfoPanel.add(new JLabel(String.format("Storage Days: %d", parcel.getNoOfDays())));
+                    parcelInfoPanel.add(new JLabel(String.format("Dimensions: %s", parcel.getDimensions())));
+                    parcelInfoPanel.add(new JLabel(String.format("Status: %s", parcel.getStatus())));
+                    
                     parcelPanel.add(parcelInfoPanel);
+                    parcelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
                 });
 
-            // Customers display
-            Queue<Customer> customers = controller.getQueue().getCustomers();
-            customers.stream()
-                .limit(10)
-                .forEach(customer -> {
-                    JPanel customerInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-                    customerInfoPanel.add(new JLabel(String.format(
-                        "Queue #%d: %s (Parcel: %s)",
-                        customer.getQno(), customer.getName(), 
-                        customer.getParcelID()
-                    )));
-                    queuePanel.add(customerInfoPanel);
-                });
-
-            // Current Processing Panel
             Customer currentCustomer = controller.getCurrentCustomer();
             if (currentCustomer != null) {
-                currentParcelPanel.setLayout(new BorderLayout());
-                JLabel currentProcessingLabel = new JLabel(
-                    "Currently Processing: " + currentCustomer.getName() + 
-                    " (Parcel: " + currentCustomer.getParcelID() + ")"
-                );
-                currentProcessingLabel.setBorder(BorderFactory.createTitledBorder("Current Processing"));
-                currentParcelPanel.add(currentProcessingLabel, BorderLayout.CENTER);
+                JPanel currentProcessingInfo = new JPanel();
+                currentProcessingInfo.setLayout(new GridLayout(0, 1, 5, 5));
+                currentProcessingInfo.setBorder(BorderFactory.createTitledBorder("Current Processing"));
+                
+                Parcel currentParcel = controller.getParcelMap().pFind(currentCustomer.getParcelID());
+                if (currentParcel != null) {
+                    currentProcessingInfo.add(new JLabel("Customer: " + currentCustomer.getName()));
+                    currentProcessingInfo.add(new JLabel("Queue Number: " + currentCustomer.getQno()));
+                    currentProcessingInfo.add(new JLabel("Parcel ID: " + currentParcel.getParcelID()));
+                    currentProcessingInfo.add(new JLabel(String.format("Weight: %.2f kg", currentParcel.getWeight())));
+                    currentProcessingInfo.add(new JLabel("Storage Days: " + currentParcel.getNoOfDays()));
+                    currentProcessingInfo.add(new JLabel("Dimensions: " + currentParcel.getDimensions()));
+                    currentProcessingInfo.add(new JLabel("Collection Fee: $" + 
+                        String.format("%.2f", (5.0 + (currentParcel.getWeight() * 2.0) + (currentParcel.getNoOfDays() * 1.0)))));
+                }
+                currentParcelPanel.add(currentProcessingInfo, BorderLayout.CENTER);
+            } else {
+                JLabel noProcessingLabel = new JLabel("No customer currently being processed");
+                noProcessingLabel.setBorder(BorderFactory.createTitledBorder("Current Processing"));
+                currentParcelPanel.add(noProcessingLabel, BorderLayout.CENTER);
             }
 
-            // Log display (moved to the last column as requested)
+            Queue<Customer> customers = controller.getQueue().getCustomers();
+            customers.forEach(customer -> {
+                JPanel customerInfoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                customerInfoPanel.add(new JLabel(String.format(
+                    "Queue #%d: %s (Parcel: %s)",
+                    customer.getQno(), customer.getName(), 
+                    customer.getParcelID()
+                )));
+                queuePanel.add(customerInfoPanel);
+            });
+
             String logContents = Log.getInstance().getLogContents();
             logArea.setText(logContents);
             logArea.setCaretPosition(logArea.getDocument().getLength());
 
-            // Refresh panels
-            parcelPanel.revalidate();
-            parcelPanel.repaint();
-            queuePanel.revalidate();
-            queuePanel.repaint();
-            currentParcelPanel.revalidate();
-            currentParcelPanel.repaint();
+            revalidateAndRepaintAll();
         });
+    }
+    private void revalidateAndRepaintAll() {
+        parcelPanel.revalidate();
+        parcelPanel.repaint();
+        queuePanel.revalidate();
+        queuePanel.repaint();
+        currentParcelPanel.revalidate();
+        currentParcelPanel.repaint();
     }
 }

@@ -27,7 +27,7 @@ public class ParcelMap {
     }
 
     public Map<String, Parcel> getParcels() {
-        return new HashMap<>(parcelMap); // Defensive copy
+        return new HashMap<>(parcelMap);
     }
 
     public void displayParcels() {

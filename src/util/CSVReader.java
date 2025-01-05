@@ -11,9 +11,9 @@ public class CSVReader {
 	    List<String[]> data = new ArrayList<>();
 	    try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
 	        String line;
-	        br.readLine(); // Skip header if exists
+	        br.readLine();
 	        while ((line = br.readLine()) != null) {
-	            String[] values = line.split(","); // Use comma as delimiter
+	            String[] values = line.split(",");
 	            data.add(values);
 	        }
 	    } catch (IOException e) {
